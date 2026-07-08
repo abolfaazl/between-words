@@ -1,0 +1,216 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Between Words 1.0.0\n"
+"POT-Creation-Date: 2026-07-08 00:00+0330\n"
+"PO-Revision-Date: 2026-07-08 00:00+0330\n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Domain: between-words\n"
+
+msgid "Primary Menu"
+msgstr "منوی اصلی"
+
+msgid "Footer Menu"
+msgstr "منوی فوتر"
+
+msgid "Between Words Options"
+msgstr "تنظیمات بین کلمات"
+
+msgid "About Text"
+msgstr "متن درباره"
+
+msgid "About Link"
+msgstr "پیوند درباره"
+
+msgid "Newsletter Text"
+msgstr "متن خبرنامه"
+
+msgid "Newsletter Shortcode"
+msgstr "شورتکد خبرنامه"
+
+msgid "Telegram URL"
+msgstr "آدرس تلگرام"
+
+msgid "Instagram URL"
+msgstr "آدرس اینستاگرام"
+
+msgid "Contact Email"
+msgstr "ایمیل تماس"
+
+msgid "Privacy Label"
+msgstr "برچسب حریم خصوصی"
+
+msgid "Privacy URL"
+msgstr "آدرس حریم خصوصی"
+
+msgid "Contact Label"
+msgstr "برچسب تماس"
+
+msgid "Contact URL"
+msgstr "آدرس تماس"
+
+msgid "A quiet place for thinking out loud through essays, notes, questions, memories, and the things that stay between words."
+msgstr "اینجا جایی‌ست برای فکر کردن با صدای بلند؛ از دل یادداشت‌ها، سوال‌ها، خاطره‌ها و چیزهایی که بین کلمات جا می‌مانند."
+
+msgid "If you want to hear about new posts when they are published, leave your email and stay in touch."
+msgstr "اگر دوست داری هر بار که یادداشتی تازه منتشر می‌شود باخبر شوی، ایمیل خودت را بگذار تا در تماس بمانیم."
+
+msgid "Privacy"
+msgstr "حریم خصوصی"
+
+msgid "Contact"
+msgstr "تماس"
+
+msgid "Notes"
+msgstr "یادداشت‌ها"
+
+msgid "Podcast"
+msgstr "پادکست"
+
+msgid "About"
+msgstr "درباره"
+
+msgid "Continue reading"
+msgstr "ادامه مطلب"
+
+msgid "Latest notes"
+msgstr "آخرین یادداشت‌ها"
+
+msgid "Latest podcast"
+msgstr "آخرین پادکست"
+
+msgid "No podcast has been published yet."
+msgstr "هنوز پادکستی منتشر نشده است."
+
+msgid "All podcast episodes"
+msgstr "همه پادکست‌ها"
+
+msgid "Notes archive"
+msgstr "آرشیو یادداشت‌ها"
+
+msgid "View full archive"
+msgstr "مشاهده همه آرشیو"
+
+msgid "Newsletter"
+msgstr "خبرنامه"
+
+msgid "Enter your email"
+msgstr "ایمیل خود را وارد کنید"
+
+msgid "Email address"
+msgstr "آدرس ایمیل"
+
+msgid "Subscribe"
+msgstr "عضویت"
+
+msgid "Save"
+msgstr "ذخیره"
+
+msgid "Share"
+msgstr "اشتراک‌گذاری"
+
+msgid "Search"
+msgstr "جستجو"
+
+msgid "Search term"
+msgstr "عبارت جستجو"
+
+msgid "Results for: %s"
+msgstr "نتایج برای: %s"
+
+msgid "No results found."
+msgstr "نتیجه‌ای پیدا نشد."
+
+msgid "Page not found"
+msgstr "صفحه پیدا نشد"
+
+msgid "The page you are looking for may have moved or is no longer available."
+msgstr "صفحه‌ای که به دنبالش بودید جابه‌جا شده یا دیگر در دسترس نیست."
+
+msgid "Back to home"
+msgstr "بازگشت به صفحه اصلی"
+
+msgid "No posts have been published yet."
+msgstr "هنوز یادداشتی منتشر نشده است."
+
+msgid "Nothing was found to display here."
+msgstr "موردی برای نمایش پیدا نشد."
+
+msgid "No podcast episodes have been published yet."
+msgstr "هنوز پادکستی منتشر نشده است."
+
+msgid "Gallery"
+msgstr "گالری"
+
+msgid "No galleries have been published yet."
+msgstr "هنوز گالری‌ای منتشر نشده است."
+
+msgid "Images"
+msgstr "تصاویر"
+
+msgid "No images have been published yet."
+msgstr "هنوز تصویری منتشر نشده است."
+
+msgid "Skip to content"
+msgstr "پرش به محتوا"
+
+msgid "Primary navigation"
+msgstr "ناوبری اصلی"
+
+msgid "Menu"
+msgstr "منو"
+
+msgid "Telegram"
+msgstr "تلگرام"
+
+msgid "Instagram"
+msgstr "اینستاگرام"
+
+msgid "Email"
+msgstr "ایمیل"
+
+msgid "Play podcast"
+msgstr "پخش پادکست"
+
+msgid "Read more"
+msgstr "بیشتر بخوانید"
+
+msgid "About Between Words"
+msgstr "درباره بین کلمات"
+
+msgid "More notes"
+msgstr "یادداشت‌های بیشتر"
+
+msgid "Pagination"
+msgstr "صفحه‌بندی"
+
+msgid "Previous"
+msgstr "قبلی"
+
+msgid "Next"
+msgstr "بعدی"
+
+msgid "%s minute read"
+msgid_plural "%s minutes read"
+msgstr[0] "%s دقیقه مطالعه"
+msgstr[1] "%s دقیقه مطالعه"
+
+msgid "%s image"
+msgid_plural "%s images"
+msgstr[0] "%s تصویر"
+msgstr[1] "%s تصویر"
+
+msgctxt "Current date format in header"
+msgid "l j F Y"
+msgstr "l j F Y"
+
+msgctxt "Post date format"
+msgid "j F Y"
+msgstr "j F Y"
+
+msgctxt "Monthly archive label"
+msgid "F Y"
+msgstr "F Y"

@@ -1,0 +1,6 @@
+Between Words Asset Credits
+===========================
+
+1. Social icons in the footer are inline SVG markup created for this theme and distributed under the same GPL-compatible license as the theme.
+2. The theme does not bundle any remote web fonts, analytics, trackers, or third-party JavaScript libraries.
+3. Decorative placeholder graphics are CSS-based gradients generated directly in theme styles.

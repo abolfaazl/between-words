@@ -1,0 +1,217 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Between Words 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/abolfaazl\n"
+"POT-Creation-Date: 2026-07-08 00:00+0330\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: between-words\n"
+
+msgid "Primary Menu"
+msgstr ""
+
+msgid "Footer Menu"
+msgstr ""
+
+msgid "Between Words Options"
+msgstr ""
+
+msgid "About Text"
+msgstr ""
+
+msgid "About Link"
+msgstr ""
+
+msgid "Newsletter Text"
+msgstr ""
+
+msgid "Newsletter Shortcode"
+msgstr ""
+
+msgid "Telegram URL"
+msgstr ""
+
+msgid "Instagram URL"
+msgstr ""
+
+msgid "Contact Email"
+msgstr ""
+
+msgid "Privacy Label"
+msgstr ""
+
+msgid "Privacy URL"
+msgstr ""
+
+msgid "Contact Label"
+msgstr ""
+
+msgid "Contact URL"
+msgstr ""
+
+msgid "A quiet place for thinking out loud through essays, notes, questions, memories, and the things that stay between words."
+msgstr ""
+
+msgid "If you want to hear about new posts when they are published, leave your email and stay in touch."
+msgstr ""
+
+msgid "Privacy"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Podcast"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Continue reading"
+msgstr ""
+
+msgid "Latest notes"
+msgstr ""
+
+msgid "Latest podcast"
+msgstr ""
+
+msgid "No podcast has been published yet."
+msgstr ""
+
+msgid "All podcast episodes"
+msgstr ""
+
+msgid "Notes archive"
+msgstr ""
+
+msgid "View full archive"
+msgstr ""
+
+msgid "Newsletter"
+msgstr ""
+
+msgid "Enter your email"
+msgstr ""
+
+msgid "Email address"
+msgstr ""
+
+msgid "Subscribe"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Share"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Search term"
+msgstr ""
+
+msgid "Results for: %s"
+msgstr ""
+
+msgid "No results found."
+msgstr ""
+
+msgid "Page not found"
+msgstr ""
+
+msgid "The page you are looking for may have moved or is no longer available."
+msgstr ""
+
+msgid "Back to home"
+msgstr ""
+
+msgid "No posts have been published yet."
+msgstr ""
+
+msgid "Nothing was found to display here."
+msgstr ""
+
+msgid "No podcast episodes have been published yet."
+msgstr ""
+
+msgid "Gallery"
+msgstr ""
+
+msgid "No galleries have been published yet."
+msgstr ""
+
+msgid "Images"
+msgstr ""
+
+msgid "No images have been published yet."
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Skip to content"
+msgstr ""
+
+msgid "Primary navigation"
+msgstr ""
+
+msgid "Menu"
+msgstr ""
+
+msgid "Telegram"
+msgstr ""
+
+msgid "Instagram"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Play podcast"
+msgstr ""
+
+msgid "Read more"
+msgstr ""
+
+msgid "About Between Words"
+msgstr ""
+
+msgid "More notes"
+msgstr ""
+
+msgid "Pagination"
+msgstr ""
+
+msgid "Previous"
+msgstr ""
+
+msgid "Next"
+msgstr ""
+
+msgid "%s minute read"
+msgid_plural "%s minutes read"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%s image"
+msgid_plural "%s images"
+msgstr[0] ""
+msgstr[1] ""
+
+msgctxt "Current date format in header"
+msgid "l j F Y"
+msgstr ""
+
+msgctxt "Post date format"
+msgid "j F Y"
+msgstr ""
+
+msgctxt "Monthly archive label"
+msgid "F Y"
+msgstr ""
