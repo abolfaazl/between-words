@@ -20,7 +20,7 @@ $podcast = $args['podcast'] ?? null;
         <?php endif; ?>
     </div>
 
-    <a class="side-link" href="<?php echo esc_url(between_words_get_category_archive_link('podcast', between_words_get_posts_url())); ?>">
+    <a class="side-link" href="<?php echo esc_url(between_words_get_podcast_archive_link(between_words_get_posts_url())); ?>">
         <span class="link-text"><?php echo esc_html(between_words_label('all_podcast_episodes')); ?></span>
         <?php echo between_words_directional_arrow('forward'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
     </a>

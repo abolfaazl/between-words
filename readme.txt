@@ -7,6 +7,7 @@ Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Copyright: Copyright (c) 2026 abolfaazl
 
 A minimal writing-focused classic WordPress theme for personal essays, podcasts, galleries, and image posts.
 
@@ -64,3 +65,4 @@ Yes. Persian/RTL remains the primary visual baseline, and LTR overrides are incl
 == License ==
 
 This theme is licensed under the GNU General Public License v2 or later.
+Copyright (c) 2026 abolfaazl

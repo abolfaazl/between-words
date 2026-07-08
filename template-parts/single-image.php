@@ -19,6 +19,7 @@ if (!defined('ABSPATH')) {
 
     <div class="single-content">
         <?php the_content(); ?>
+        <?php between_words_render_post_page_links(); ?>
     </div>
 
     <div class="single-meta">
@@ -34,4 +35,6 @@ if (!defined('ABSPATH')) {
             <span class="share-feedback" data-share-feedback><?php echo esc_html(between_words_label('link_copied')); ?></span>
         </div>
     </div>
+
+    <?php between_words_render_comments_section(); ?>
 </article>

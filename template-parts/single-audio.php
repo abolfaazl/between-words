@@ -29,6 +29,7 @@ $audio_safe_content = between_words_remove_audio_from_content((string) get_post_
 
     <div class="single-content">
         <?php echo apply_filters('the_content', $audio_safe_content); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+        <?php between_words_render_post_page_links(); ?>
     </div>
 
     <div class="single-meta">
@@ -57,4 +58,6 @@ $audio_safe_content = between_words_remove_audio_from_content((string) get_post_
             <span class="share-feedback" data-share-feedback><?php echo esc_html(between_words_label('link_copied')); ?></span>
         </div>
     </div>
+
+    <?php between_words_render_comments_section(); ?>
 </article>

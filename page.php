@@ -24,7 +24,10 @@ get_header();
 
                 <div class="page-content">
                     <?php the_content(); ?>
+                    <?php between_words_render_post_page_links(); ?>
                 </div>
+
+                <?php between_words_render_comments_section(); ?>
             </article>
         <?php endwhile; ?>
     </section>

@@ -78,10 +78,7 @@ if (!defined('ABSPATH')) {
     <div class="search-overlay" data-search-overlay role="dialog" aria-modal="true" aria-hidden="true" aria-label="<?php echo esc_attr(between_words_label('search')); ?>">
         <div class="search-panel" data-search-panel>
             <button class="overlay-close" type="button" data-search-close aria-label="<?php echo esc_attr(between_words_label('close')); ?>"></button>
-            <form class="search-overlay-form" role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-                <input class="search-field" type="search" name="s" placeholder="<?php echo esc_attr(between_words_label('search_term')); ?>" data-search-input>
-                <button class="search-submit" type="submit"><?php echo esc_html(between_words_label('search')); ?></button>
-            </form>
+            <?php get_search_form(['between_words_context' => 'overlay']); ?>
         </div>
     </div>
     <div class="drawer-backdrop" data-drawer-backdrop></div>

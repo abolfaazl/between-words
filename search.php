@@ -9,10 +9,7 @@ get_header();
             <?php between_words_render_breadcrumbs(); ?>
             <div class="archive-kicker"><?php echo esc_html(between_words_label('search')); ?></div>
             <h1 class="archive-title"><?php echo esc_html(sprintf(between_words_label('results_for'), get_search_query())); ?></h1>
-            <form class="search-form-inline" role="search" method="get" action="<?php echo esc_url(home_url('/')); ?>">
-                <input class="search-field" type="search" name="s" value="<?php echo esc_attr(get_search_query()); ?>" placeholder="<?php echo esc_attr(between_words_label('search_term')); ?>">
-                <button class="search-submit" type="submit"><?php echo esc_html(between_words_label('search')); ?></button>
-            </form>
+            <?php get_search_form(['between_words_context' => 'inline']); ?>
         </header>
 
         <?php

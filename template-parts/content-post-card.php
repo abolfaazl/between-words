@@ -20,12 +20,12 @@ $title = get_the_title($post_id);
 
         <p class="post-excerpt"><?php echo esc_html(get_the_excerpt() ?: wp_trim_words(wp_strip_all_tags(get_the_content()), 34, '...')); ?></p>
 
-        <div class="post-footer">
-            <a class="read-more" href="<?php echo esc_url($permalink); ?>">
+        <div class="post-footer post-card-footer">
+            <a class="read-more post-card-cta" href="<?php echo esc_url($permalink); ?>">
                 <span class="link-text"><?php echo esc_html(between_words_label('continue_reading')); ?></span>
                 <?php echo between_words_directional_arrow('forward'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             </a>
-            <span class="read-time"><?php echo esc_html($meta_text); ?></span>
+            <span class="read-time post-card-time"><?php echo esc_html($meta_text); ?></span>
         </div>
     </div>
 </article>

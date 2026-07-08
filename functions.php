@@ -13,7 +13,6 @@ function between_words_setup(): void
     add_image_size('between-words-hero', 1480, 740, true);
     add_image_size('between-words-sidebar', 360, 180, true);
     add_theme_support('automatic-feed-links');
-    add_theme_support('menus');
     add_theme_support('custom-logo');
     add_theme_support('responsive-embeds');
     add_theme_support('editor-styles');
@@ -28,6 +27,8 @@ function between_words_setup(): void
     ]);
 }
 add_action('after_setup_theme', 'between_words_setup');
+
+require_once get_template_directory() . '/inc/widgets.php';
 
 function between_words_get_asset_version(string $relative_path): string
 {
@@ -75,6 +76,10 @@ function between_words_enqueue_assets(): void
 
     if (function_exists('wp_script_add_data')) {
         wp_script_add_data('between-words-script', 'defer', true);
+    }
+
+    if (is_singular() && comments_open() && get_option('thread_comments')) {
+        wp_enqueue_script('comment-reply');
     }
 }
 add_action('wp_enqueue_scripts', 'between_words_enqueue_assets');
@@ -475,6 +480,11 @@ function between_words_get_canonical_url(): string
     }
 
     return '';
+}
+
+function between_words_should_output_theme_canonical(): bool
+{
+    return !is_singular() && between_words_get_canonical_url() !== '';
 }
 
 function between_words_get_current_request_url(): string
@@ -1035,11 +1045,67 @@ function between_words_get_category_archive_link(string $slug, string $fallback 
     return $fallback ?: between_words_get_posts_url();
 }
 
+function between_words_get_podcast_category_term(): ?\WP_Term
+{
+    static $term = false;
+
+    if ($term !== false) {
+        return $term instanceof \WP_Term ? $term : null;
+    }
+
+    $candidates = ['podcast', 'Podcast', 'پادکست'];
+
+    foreach ($candidates as $candidate) {
+        $category = get_category_by_slug($candidate);
+        if ($category instanceof \WP_Term) {
+            $term = $category;
+            return $term;
+        }
+    }
+
+    $terms = get_categories([
+        'hide_empty' => false,
+        'taxonomy' => 'category',
+    ]);
+
+    foreach ($terms as $category) {
+        if (!$category instanceof \WP_Term) {
+            continue;
+        }
+
+        $slug = function_exists('mb_strtolower') ? mb_strtolower($category->slug, 'UTF-8') : strtolower($category->slug);
+        $name = function_exists('mb_strtolower') ? mb_strtolower($category->name, 'UTF-8') : strtolower($category->name);
+
+        if (in_array($slug, ['podcast', 'پادکست'], true) || in_array($name, ['podcast', 'پادکست'], true)) {
+            $term = $category;
+            return $term;
+        }
+    }
+
+    $term = null;
+
+    return null;
+}
+
+function between_words_get_podcast_archive_link(string $fallback = ''): string
+{
+    $category = between_words_get_podcast_category_term();
+
+    if ($category instanceof \WP_Term) {
+        $link = get_category_link($category);
+        if (!is_wp_error($link)) {
+            return $link;
+        }
+    }
+
+    return $fallback ?: between_words_get_posts_url();
+}
+
 function between_words_get_primary_menu_fallback(): array
 {
     return [
         ['label' => between_words_label('notes'), 'url' => between_words_get_posts_url()],
-        ['label' => between_words_label('podcast'), 'url' => between_words_get_category_archive_link('podcast', between_words_get_posts_url())],
+        ['label' => between_words_label('podcast'), 'url' => between_words_get_podcast_archive_link(between_words_get_posts_url())],
         ['label' => between_words_label('about'), 'url' => get_theme_mod('between_words_about_link', home_url('/about/'))],
     ];
 }
@@ -1189,7 +1255,48 @@ function between_words_post_has_any_category($categories, int $post_id): bool
 
 function between_words_content_has_audio(?int $post_id = null): bool
 {
-    return between_words_get_post_audio_url($post_id) !== '';
+    $post = get_post($post_id);
+    if (!$post instanceof \WP_Post) {
+        return false;
+    }
+
+    if (has_block('core/audio', $post)) {
+        return true;
+    }
+
+    if (stripos($post->post_content, '<audio') !== false || stripos($post->post_content, '[audio') !== false) {
+        return true;
+    }
+
+    return between_words_get_post_audio_url($post->ID) !== '';
+}
+
+function between_words_post_has_podcast_category(?int $post_id = null): bool
+{
+    $post_id = (int) ($post_id ?: get_the_ID());
+    if ($post_id <= 0) {
+        return false;
+    }
+
+    $terms = get_the_terms($post_id, 'category');
+    if (empty($terms) || is_wp_error($terms)) {
+        return false;
+    }
+
+    foreach ($terms as $term) {
+        if (!$term instanceof \WP_Term) {
+            continue;
+        }
+
+        $slug = function_exists('mb_strtolower') ? mb_strtolower($term->slug, 'UTF-8') : strtolower($term->slug);
+        $name = function_exists('mb_strtolower') ? mb_strtolower($term->name, 'UTF-8') : strtolower($term->name);
+
+        if (in_array($slug, ['podcast', 'پادکست'], true) || in_array($name, ['podcast', 'پادکست'], true)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function between_words_is_podcast_post(?int $post_id = null): bool
@@ -1200,7 +1307,7 @@ function between_words_is_podcast_post(?int $post_id = null): bool
     }
 
     return get_post_format($post_id) === 'audio'
-        || between_words_post_has_any_category(['podcast'], $post_id)
+        || between_words_post_has_podcast_category($post_id)
         || between_words_content_has_audio($post_id);
 }
 
@@ -1435,6 +1542,78 @@ function between_words_get_podcast_duration(?int $post_id = null): string
     return (string) get_post_meta((int) $post_id, '_between_words_duration', true);
 }
 
+function between_words_get_duration_minutes(string $duration): int
+{
+    $duration = trim($duration);
+    if ($duration === '') {
+        return 0;
+    }
+
+    if (preg_match('/^(?:(\d+):)?(\d{1,2}):(\d{2})$/', $duration, $matches)) {
+        $hours = isset($matches[3]) && $matches[1] !== '' ? (int) $matches[1] : 0;
+        $minutes = (int) $matches[count($matches) === 4 ? 2 : 1];
+        $seconds = (int) $matches[count($matches) === 4 ? 3 : 2];
+
+        return max(1, (int) ceil((($hours * 3600) + ($minutes * 60) + $seconds) / 60));
+    }
+
+    if (preg_match('/(\d+)/u', $duration, $matches)) {
+        return max(1, (int) $matches[1]);
+    }
+
+    return 0;
+}
+
+function between_words_get_post_time_label(?int $post_id = null): string
+{
+    static $cache = [];
+
+    $post_id = (int) ($post_id ?: get_the_ID());
+    if ($post_id <= 0) {
+        return '';
+    }
+
+    if (isset($cache[$post_id])) {
+        return $cache[$post_id];
+    }
+
+    if (between_words_is_podcast_post($post_id)) {
+        $duration = trim(between_words_get_podcast_duration($post_id));
+
+        if ($duration !== '') {
+            $minutes = between_words_get_duration_minutes($duration);
+            if ($minutes > 0) {
+                $formatted = number_format_i18n($minutes);
+
+                if (between_words_is_persian_locale()) {
+                    $cache[$post_id] = sprintf('%s دقیقه شنیدن', $formatted);
+                    return $cache[$post_id];
+                }
+
+                $cache[$post_id] = sprintf('%s min listen', $formatted);
+                return $cache[$post_id];
+            }
+
+            $cache[$post_id] = $duration;
+            return $cache[$post_id];
+        }
+
+        $reading_label = between_words_get_reading_time($post_id);
+
+        if (between_words_is_persian_locale()) {
+            $cache[$post_id] = preg_replace('/مطالعه/u', 'شنیدن', $reading_label, 1) ?: $reading_label;
+            return $cache[$post_id];
+        }
+
+        $cache[$post_id] = str_replace(['minutes read', 'minute read'], 'min listen', $reading_label);
+        return $cache[$post_id];
+    }
+
+    $cache[$post_id] = between_words_get_reading_time($post_id);
+
+    return $cache[$post_id];
+}
+
 function between_words_get_card_meta_text(?int $post_id = null): string
 {
     static $cache = [];
@@ -1451,7 +1630,7 @@ function between_words_get_card_meta_text(?int $post_id = null): string
     $kind = between_words_get_content_kind($post_id);
 
     if ($kind === 'audio') {
-        $cache[$post_id] = between_words_get_podcast_duration($post_id) ?: between_words_get_reading_time($post_id);
+        $cache[$post_id] = between_words_get_post_time_label($post_id);
         return $cache[$post_id];
     }
 
@@ -1463,7 +1642,7 @@ function between_words_get_card_meta_text(?int $post_id = null): string
         }
     }
 
-    $cache[$post_id] = between_words_get_reading_time($post_id);
+    $cache[$post_id] = between_words_get_post_time_label($post_id);
 
     return $cache[$post_id];
 }
@@ -1586,40 +1765,57 @@ function between_words_get_latest_podcast_post(): ?\WP_Post
     }
 
     $transient_key = 'between_words_latest_podcast_post_id';
-    $cached_post_id = (int) get_transient($transient_key);
-    if ($cached_post_id > 0) {
-        $cached_post = get_post($cached_post_id);
-        if ($cached_post instanceof \WP_Post && $cached_post->post_status === 'publish') {
-            return $cached_post;
+    $use_cache = !(defined('WP_DEBUG') && WP_DEBUG);
+
+    if ($use_cache) {
+        $cached_post_id = (int) get_transient($transient_key);
+        if ($cached_post_id > 0) {
+            $cached_post = get_post($cached_post_id);
+            if ($cached_post instanceof \WP_Post && $cached_post->post_status === 'publish' && between_words_is_podcast_post($cached_post->ID)) {
+                return $cached_post;
+            }
         }
+    }
+
+    $podcast_category = between_words_get_podcast_category_term();
+    $tax_query = [
+        'relation' => 'OR',
+        ['taxonomy' => 'post_format', 'field' => 'slug', 'terms' => ['post-format-audio']],
+        ['taxonomy' => 'category', 'field' => 'slug', 'terms' => ['podcast']],
+    ];
+
+    if ($podcast_category instanceof \WP_Term) {
+        $tax_query[] = ['taxonomy' => 'category', 'field' => 'term_id', 'terms' => [$podcast_category->term_id]];
     }
 
     $query = new WP_Query([
         'post_type' => 'post',
         'post_status' => 'publish',
-        'posts_per_page' => 1,
+        'posts_per_page' => 3,
         'orderby' => 'date',
         'order' => 'DESC',
         'no_found_rows' => true,
         'ignore_sticky_posts' => true,
-        'tax_query' => [
-            'relation' => 'OR',
-            ['taxonomy' => 'post_format', 'field' => 'slug', 'terms' => ['post-format-audio']],
-            ['taxonomy' => 'category', 'field' => 'slug', 'terms' => ['podcast']],
-        ],
+        'tax_query' => $tax_query,
         'update_post_meta_cache' => false,
     ]);
 
     if ($query->have_posts()) {
-        $cached_post = $query->posts[0];
-        set_transient($transient_key, (int) $cached_post->ID, DAY_IN_SECONDS);
-        return $cached_post;
+        foreach ($query->posts as $post) {
+            if ($post instanceof \WP_Post && between_words_is_podcast_post($post->ID)) {
+                $cached_post = $post;
+                if ($use_cache) {
+                    set_transient($transient_key, (int) $cached_post->ID, HOUR_IN_SECONDS);
+                }
+                return $cached_post;
+            }
+        }
     }
 
     $fallback_posts = get_posts([
         'post_type' => 'post',
         'post_status' => 'publish',
-        'posts_per_page' => 20,
+        'posts_per_page' => 30,
         'orderby' => 'date',
         'order' => 'DESC',
         'no_found_rows' => true,
@@ -1628,8 +1824,10 @@ function between_words_get_latest_podcast_post(): ?\WP_Post
     ]);
 
     foreach ($fallback_posts as $post) {
-        if ($post instanceof \WP_Post && between_words_get_post_audio_url($post->ID) !== '') {
-            set_transient($transient_key, (int) $post->ID, DAY_IN_SECONDS);
+        if ($post instanceof \WP_Post && between_words_is_podcast_post($post->ID)) {
+            if ($use_cache) {
+                set_transient($transient_key, (int) $post->ID, HOUR_IN_SECONDS);
+            }
             $cached_post = $post;
             return $cached_post;
         }
@@ -1646,12 +1844,19 @@ function between_words_get_latest_podcast(): ?\WP_Post
     return between_words_get_latest_podcast_post();
 }
 
-function between_words_clear_latest_podcast_cache(...$args): void
+function between_words_flush_latest_podcast_cache(): void
 {
     delete_transient('between_words_latest_podcast_post_id');
 }
+
+function between_words_clear_latest_podcast_cache(...$args): void
+{
+    between_words_flush_latest_podcast_cache();
+}
 add_action('save_post_post', 'between_words_clear_latest_podcast_cache');
 add_action('deleted_post', 'between_words_clear_latest_podcast_cache');
+add_action('trashed_post', 'between_words_clear_latest_podcast_cache');
+add_action('untrashed_post', 'between_words_clear_latest_podcast_cache');
 add_action('transition_post_status', 'between_words_clear_latest_podcast_cache');
 
 function between_words_clear_latest_podcast_cache_on_terms(int $object_id, array $terms, array $tt_ids, string $taxonomy): void
@@ -1677,6 +1882,9 @@ function between_words_clear_latest_podcast_cache_on_post_format(int $post_id, s
     between_words_clear_latest_podcast_cache();
 }
 add_action('set_post_format', 'between_words_clear_latest_podcast_cache_on_post_format', 10, 2);
+add_action('created_category', 'between_words_clear_latest_podcast_cache');
+add_action('edited_category', 'between_words_clear_latest_podcast_cache');
+add_action('delete_category', 'between_words_clear_latest_podcast_cache');
 
 function between_words_get_previous_episode(?int $post_id = null): ?\WP_Post
 {
@@ -1768,7 +1976,11 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
     $audio_url = $post_id ? between_words_get_post_audio_url($post_id) : '';
     $duration = $post_id ? between_words_get_podcast_duration($post_id) : '';
     $has_audio = $audio_url !== '';
-    $player_classes = [];
+    $player_classes = ['podcast-player'];
+
+    if (!$has_audio) {
+        $player_classes[] = 'is-disabled';
+    }
 
     if (!empty($args['variant'])) {
         $player_classes[] = 'podcast-player--' . sanitize_html_class((string) $args['variant']);
@@ -1778,9 +1990,9 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
         $player_classes[] = sanitize_html_class((string) $args['class']);
     }
 
-    $player_class = $player_classes ? ' ' . implode(' ', $player_classes) : '';
+    $player_class = implode(' ', array_filter(array_map('sanitize_html_class', $player_classes)));
     ?>
-    <div class="podcast-player<?php echo $has_audio ? '' : ' is-disabled'; ?><?php echo esc_attr($player_class); ?>" data-audio-player data-initial-time="<?php echo esc_attr($duration ?: '00:00'); ?>">
+    <div class="<?php echo esc_attr($player_class); ?>" data-audio-player data-initial-time="<?php echo esc_attr($duration ?: '00:00'); ?>">
         <div class="player-row">
             <button class="play-button<?php echo $has_audio ? '' : ' is-disabled'; ?>" type="button" data-audio-toggle aria-label="<?php echo esc_attr(between_words_label('play_podcast')); ?>"<?php echo $has_audio ? '' : ' aria-disabled="true"'; ?>></button>
             <?php echo between_words_render_waveform(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -1820,21 +2032,23 @@ function between_words_get_adjacent_podcast_post(?int $post_id = null, string $d
     $posts = get_posts([
         'post_type' => 'post',
         'post_status' => 'publish',
-        'posts_per_page' => 1,
+        'posts_per_page' => 12,
         'post__not_in' => [$post_id],
         'orderby' => 'date',
         'order' => $direction === 'previous' ? 'DESC' : 'ASC',
         'date_query' => $date_query,
-        'tax_query' => [
-            'relation' => 'OR',
-            ['taxonomy' => 'post_format', 'field' => 'slug', 'terms' => ['post-format-audio']],
-            ['taxonomy' => 'category', 'field' => 'slug', 'terms' => ['podcast']],
-        ],
         'no_found_rows' => true,
         'update_post_meta_cache' => false,
     ]);
 
-    $cache[$cache_key] = $posts ? $posts[0] : null;
+    $cache[$cache_key] = null;
+
+    foreach ($posts as $candidate) {
+        if ($candidate instanceof \WP_Post && between_words_is_podcast_post($candidate->ID)) {
+            $cache[$cache_key] = $candidate;
+            break;
+        }
+    }
 
     return $cache[$cache_key];
 }
@@ -1960,7 +2174,7 @@ function between_words_render_pagination(?\WP_Query $query = null): void
     ]);
 
     if (!$links) {
-        if (!is_home() && !is_front_page()) {
+        if ((is_home() || is_front_page()) && !is_paged()) {
             echo '<div class="load-more-wrap"><a class="load-more" href="' . esc_url(between_words_get_posts_url()) . '">' . esc_html(between_words_label('more_notes')) . '</a></div>';
         }
         return;
@@ -1973,6 +2187,16 @@ function between_words_render_pagination(?\WP_Query $query = null): void
     echo '</nav>';
 }
 
+function between_words_filter_body_classes(array $classes): array
+{
+    if (!is_active_sidebar('between-words-primary-sidebar')) {
+        $classes[] = 'bw-no-sidebar';
+    }
+
+    return $classes;
+}
+add_filter('body_class', 'between_words_filter_body_classes');
+
 function between_words_render_mode_controls(): void
 {
     ?>
@@ -1983,6 +2207,30 @@ function between_words_render_mode_controls(): void
         <button type="button" data-theme-toggle="focus"><?php echo esc_html(between_words_label('focus_mode')); ?></button>
     </div>
     <?php
+}
+
+function between_words_render_post_page_links(): void
+{
+    $links = wp_link_pages([
+            'echo' => 0,
+            'before' => '<nav class="post-page-links" aria-label="' . esc_attr__('Post pages', 'between-words') . '">',
+            'after' => '</nav>',
+            'link_before' => '<span>',
+            'link_after' => '</span>',
+        ]);
+
+    if ($links === '') {
+        return;
+    }
+
+    echo '<div class="page-links">' . $links . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+function between_words_render_comments_section(): void
+{
+    if (comments_open() || get_comments_number()) {
+        comments_template();
+    }
 }
 
 function between_words_filter_wp_robots(array $robots): array
@@ -2018,19 +2266,11 @@ function between_words_output_meta_tags(): void
     }
 
     $canonical = between_words_get_canonical_url();
-    if ($canonical !== '') {
+    if (between_words_should_output_theme_canonical()) {
         echo '<link rel="canonical" href="' . esc_url($canonical) . '">' . "\n";
     }
 }
 add_action('wp_head', 'between_words_output_meta_tags', 1);
-
-function between_words_disable_core_canonical(): void
-{
-    if (between_words_is_theme_seo_meta_enabled()) {
-        remove_action('wp_head', 'rel_canonical');
-    }
-}
-add_action('wp', 'between_words_disable_core_canonical');
 
 function between_words_output_social_meta(): void
 {
