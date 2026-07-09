@@ -909,6 +909,11 @@ body.bw-no-sidebar .sidebar.bw-sidebar-empty {
   direction: ltr;
 }
 
+.persistent-player-thumb,
+.persistent-player-title {
+  display: none;
+}
+
 .bw-persistent-audio-shell {
   position: fixed;
   left: 50%;
@@ -937,6 +942,7 @@ body.bw-no-sidebar .sidebar.bw-sidebar-empty {
 .podcast-player.is-mobile-sticky .player-row {
   margin-top: 0;
   gap: 10px;
+  align-items: center;
 }
 
 .bw-persistent-audio-shell .podcast-player .waveform,
@@ -955,8 +961,47 @@ body.bw-no-sidebar .sidebar.bw-sidebar-empty {
 .bw-persistent-audio-shell .podcast-player .podcast-resume,
 .podcast-player.is-persistent .podcast-resume,
 .podcast-player.is-mobile-sticky .podcast-resume {
-  margin-top: 2px;
-  font-size: 9.5px;
+  display: none;
+}
+
+.bw-persistent-audio-shell .podcast-player .persistent-player-thumb,
+.podcast-player.is-persistent .persistent-player-thumb,
+.podcast-player.is-mobile-sticky .persistent-player-thumb {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.bw-persistent-audio-shell .podcast-player .persistent-player-thumb img,
+.podcast-player.is-persistent .persistent-player-thumb img,
+.podcast-player.is-mobile-sticky .persistent-player-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bw-persistent-audio-shell .podcast-player .persistent-player-title,
+.podcast-player.is-persistent .persistent-player-title,
+.podcast-player.is-mobile-sticky .persistent-player-title {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--bw-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bw-persistent-audio-shell .podcast-player .persistent-player-title:hover,
+.podcast-player.is-persistent .persistent-player-title:hover,
+.podcast-player.is-mobile-sticky .persistent-player-title:hover {
+  color: var(--bw-text);
 }
 
 .podcast-audio {
@@ -2263,6 +2308,20 @@ html.bw-focus-mode body.admin-bar .site-header {
 
   .podcast-player.is-mobile-sticky .podcast-duration {
     margin-top: 5px;
+  }
+
+  .bw-persistent-audio-shell .podcast-player .persistent-player-thumb,
+  .podcast-player.is-persistent .persistent-player-thumb,
+  .podcast-player.is-mobile-sticky .persistent-player-thumb {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .bw-persistent-audio-shell .podcast-player .persistent-player-title,
+  .podcast-player.is-persistent .persistent-player-title,
+  .podcast-player.is-mobile-sticky .persistent-player-title {
+    font-size: 10.5px;
   }
 
   .bw-persistent-audio-shell {
