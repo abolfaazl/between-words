@@ -10,7 +10,7 @@ $permalink = get_permalink($post_id);
 $title = get_the_title($post_id);
 ?>
 <article <?php post_class('post-card'); ?>>
-    <a class="post-image" href="<?php echo esc_url($permalink); ?>" aria-label="<?php echo esc_attr($title); ?>">
+    <a class="post-image <?php echo esc_attr(between_words_get_card_image_aspect_class($post_id)); ?>" href="<?php echo esc_url($permalink); ?>" aria-label="<?php echo esc_attr($title); ?>">
         <?php between_words_render_card_image($post_id, 'between-words-card'); ?>
     </a>
 
