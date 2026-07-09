@@ -2041,6 +2041,13 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
     $duration = $post_id ? between_words_get_podcast_duration($post_id) : '';
     $has_audio = $audio_url !== '';
     $resume_label = between_words_is_persian_locale() ? 'ادامه از %s' : 'Resume from %s';
+    $permalink = $post_id ? get_permalink($post_id) : '';
+    $thumbnail_id = $post_id ? get_post_thumbnail_id($post_id) : 0;
+    $thumbnail_url = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'between-words-sidebar') : '';
+    $thumbnail_alt = $thumbnail_id ? get_post_meta($thumbnail_id, '_wp_attachment_image_alt', true) : '';
+    if ($thumbnail_alt === '' && $post_id) {
+        $thumbnail_alt = get_the_title($post_id);
+    }
     $player_classes = ['podcast-player'];
 
     if (!$has_audio) {
@@ -2057,7 +2064,7 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
 
     $player_class = implode(' ', array_filter(array_map('sanitize_html_class', $player_classes)));
     ?>
-    <div class="<?php echo esc_attr($player_class); ?>" data-audio-player data-post-id="<?php echo esc_attr($post_id); ?>" data-audio-title="<?php echo esc_attr($post_id ? get_the_title($post_id) : ''); ?>" data-resume-template="<?php echo esc_attr($resume_label); ?>" data-initial-time="<?php echo esc_attr($duration ?: '00:00'); ?>">
+    <div class="<?php echo esc_attr($player_class); ?>" data-audio-player data-post-id="<?php echo esc_attr($post_id); ?>" data-audio-title="<?php echo esc_attr($post_id ? get_the_title($post_id) : ''); ?>" data-audio-permalink="<?php echo esc_url($permalink); ?>" data-thumbnail-url="<?php echo esc_url($thumbnail_url ?: ''); ?>" data-thumbnail-alt="<?php echo esc_attr((string) $thumbnail_alt); ?>" data-resume-template="<?php echo esc_attr($resume_label); ?>" data-initial-time="<?php echo esc_attr($duration ?: '00:00'); ?>">
         <div class="player-row">
             <button class="play-button<?php echo $has_audio ? '' : ' is-disabled'; ?>" type="button" data-audio-toggle aria-label="<?php echo esc_attr(between_words_label('play_podcast')); ?>"<?php echo $has_audio ? '' : ' aria-disabled="true"'; ?>></button>
             <?php echo between_words_render_waveform(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -2065,10 +2072,18 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
                 <a class="download-button" href="<?php echo esc_url($audio_url); ?>" download aria-label="<?php echo esc_attr(between_words_label('download_episode')); ?>">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
                 </a>
+                <?php if ($thumbnail_url && $permalink) : ?>
+                    <a class="persistent-player-thumb" data-audio-thumbnail href="<?php echo esc_url($permalink); ?>" aria-hidden="true" tabindex="-1">
+                        <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr((string) $thumbnail_alt); ?>">
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
         <div class="podcast-duration" data-audio-time><?php echo esc_html($duration ?: '00:00'); ?></div>
         <div class="podcast-resume" data-audio-resume hidden></div>
+        <?php if ($permalink && $post_id) : ?>
+            <a class="persistent-player-title" data-audio-title-link href="<?php echo esc_url($permalink); ?>"><?php echo esc_html(get_the_title($post_id)); ?></a>
+        <?php endif; ?>
         <?php if ($has_audio) : ?>
             <audio class="podcast-audio" preload="metadata" src="<?php echo esc_url($audio_url); ?>"></audio>
         <?php endif; ?>
