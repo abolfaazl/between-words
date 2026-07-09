@@ -5,6 +5,7 @@ get_header();
     <?php get_sidebar(); ?>
 
     <section class="single-main">
+        <?php between_words_render_reading_tools(); ?>
         <?php
         while (have_posts()) :
             the_post();

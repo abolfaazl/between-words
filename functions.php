@@ -1694,6 +1694,65 @@ function between_words_get_card_image_id(?int $post_id = null): int
     return $cache[$post_id];
 }
 
+function between_words_get_image_aspect_type(int $attachment_id): string
+{
+    $attachment_id = absint($attachment_id);
+    if ($attachment_id <= 0) {
+        return 'crop-square';
+    }
+
+    $metadata = wp_get_attachment_metadata($attachment_id);
+    $width = isset($metadata['width']) ? (int) $metadata['width'] : 0;
+    $height = isset($metadata['height']) ? (int) $metadata['height'] : 0;
+
+    if ($width <= 0 || $height <= 0) {
+        return 'crop-square';
+    }
+
+    $ratio = $width / $height;
+
+    if ($ratio >= 0.95 && $ratio <= 1.05) {
+        return 'square';
+    }
+
+    if ($ratio >= 0.70 && $ratio <= 0.80) {
+        return 'portrait-3-4';
+    }
+
+    return 'crop-square';
+}
+
+function between_words_get_theme_image_args(int $attachment_id, string $context = 'card'): array
+{
+    $aspect_type = $context === 'hero' ? 'hero' : between_words_get_image_aspect_type($attachment_id);
+    $class_map = [
+        'square' => 'bw-image-aspect-square',
+        'portrait-3-4' => 'bw-image-aspect-portrait',
+        'crop-square' => 'bw-image-aspect-crop-square',
+        'hero' => 'bw-image-aspect-hero',
+    ];
+
+    return [
+        'size' => $context === 'hero' ? 'between-words-hero' : 'large',
+        'aspect_type' => $aspect_type,
+        'aspect_class' => $class_map[$aspect_type] ?? $class_map['crop-square'],
+    ];
+}
+
+function between_words_get_card_image_aspect_class(?int $post_id = null, string $context = 'card'): string
+{
+    $post_id = (int) ($post_id ?: get_the_ID());
+    $image_id = between_words_get_card_image_id($post_id);
+
+    if ($image_id <= 0) {
+        return 'bw-image-aspect-crop-square';
+    }
+
+    $image_args = between_words_get_theme_image_args($image_id, $context);
+
+    return $image_args['aspect_class'];
+}
+
 function between_words_get_image_attributes(int $post_id, int $image_id, string $size = 'between-words-card', array $args = []): array
 {
     static $card_lcp_claimed = false;
@@ -1726,6 +1785,9 @@ function between_words_get_image_attributes(int $post_id, int $image_id, string 
         $attrs = array_merge($attrs, $args['attr']);
     }
 
+    $theme_image_args = between_words_get_theme_image_args($image_id, $context);
+    $attrs['class'] = trim(($attrs['class'] ?? '') . ' ' . $theme_image_args['aspect_class']);
+
     if (empty($attrs['alt'])) {
         $attrs = array_merge($attrs, between_words_get_image_attr_fallback($post_id, $image_id));
     }
@@ -1749,7 +1811,9 @@ function between_words_render_card_image(?int $post_id = null, string $size = 'b
     $image_id = between_words_get_card_image_id($post_id);
 
     if ($image_id) {
-        between_words_render_attachment_image($image_id, $size, $args + ['post_id' => $post_id]);
+        $context = isset($args['context']) ? (string) $args['context'] : 'card';
+        $theme_image_args = between_words_get_theme_image_args($image_id, $context);
+        between_words_render_attachment_image($image_id, $theme_image_args['size'], $args + ['post_id' => $post_id, 'context' => $context]);
         return;
     }
 
@@ -1976,6 +2040,7 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
     $audio_url = $post_id ? between_words_get_post_audio_url($post_id) : '';
     $duration = $post_id ? between_words_get_podcast_duration($post_id) : '';
     $has_audio = $audio_url !== '';
+    $resume_label = between_words_is_persian_locale() ? 'ادامه از %s' : 'Resume from %s';
     $player_classes = ['podcast-player'];
 
     if (!$has_audio) {
@@ -1992,7 +2057,7 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
 
     $player_class = implode(' ', array_filter(array_map('sanitize_html_class', $player_classes)));
     ?>
-    <div class="<?php echo esc_attr($player_class); ?>" data-audio-player data-initial-time="<?php echo esc_attr($duration ?: '00:00'); ?>">
+    <div class="<?php echo esc_attr($player_class); ?>" data-audio-player data-post-id="<?php echo esc_attr($post_id); ?>" data-audio-title="<?php echo esc_attr($post_id ? get_the_title($post_id) : ''); ?>" data-resume-template="<?php echo esc_attr($resume_label); ?>" data-initial-time="<?php echo esc_attr($duration ?: '00:00'); ?>">
         <div class="player-row">
             <button class="play-button<?php echo $has_audio ? '' : ' is-disabled'; ?>" type="button" data-audio-toggle aria-label="<?php echo esc_attr(between_words_label('play_podcast')); ?>"<?php echo $has_audio ? '' : ' aria-disabled="true"'; ?>></button>
             <?php echo between_words_render_waveform(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -2003,6 +2068,7 @@ function between_words_render_podcast_player(?int $post_id = null, array $args =
             <?php endif; ?>
         </div>
         <div class="podcast-duration" data-audio-time><?php echo esc_html($duration ?: '00:00'); ?></div>
+        <div class="podcast-resume" data-audio-resume hidden></div>
         <?php if ($has_audio) : ?>
             <audio class="podcast-audio" preload="metadata" src="<?php echo esc_url($audio_url); ?>"></audio>
         <?php endif; ?>
@@ -2199,12 +2265,35 @@ add_filter('body_class', 'between_words_filter_body_classes');
 
 function between_words_render_mode_controls(): void
 {
+    $decrease_text_label = between_words_is_persian_locale() ? 'کوچک‌تر کردن متن' : 'Decrease text size';
+    $reset_text_label = between_words_is_persian_locale() ? 'اندازه پیش‌فرض متن' : 'Reset text size';
+    $increase_text_label = between_words_is_persian_locale() ? 'بزرگ‌تر کردن متن' : 'Increase text size';
+    $font_controls_label = between_words_is_persian_locale() ? 'کنترل اندازه متن' : 'Text size controls';
     ?>
     <div class="theme-controls" aria-label="<?php echo esc_attr(between_words_label('theme_modes')); ?>">
         <button type="button" data-theme-mode="light"><?php echo esc_html(between_words_label('light_mode')); ?></button>
         <button type="button" data-theme-mode="dark"><?php echo esc_html(between_words_label('dark_mode')); ?></button>
         <button type="button" data-theme-toggle="reader"><?php echo esc_html(between_words_label('reader_mode')); ?></button>
         <button type="button" data-theme-toggle="focus"><?php echo esc_html(between_words_label('focus_mode')); ?></button>
+    </div>
+    <?php
+}
+
+function between_words_render_reading_tools(): void
+{
+    if (!is_singular(['post', 'page'])) {
+        return;
+    }
+
+    $decrease_text_label = between_words_is_persian_locale() ? 'کوچک‌تر کردن متن' : 'Decrease text size';
+    $reset_text_label = between_words_is_persian_locale() ? 'اندازه پیش‌فرض متن' : 'Reset text size';
+    $increase_text_label = between_words_is_persian_locale() ? 'بزرگ‌تر کردن متن' : 'Increase text size';
+    $font_controls_label = between_words_is_persian_locale() ? 'کنترل اندازه متن' : 'Text size controls';
+    ?>
+    <div class="single-reading-tools" data-reading-tools aria-label="<?php echo esc_attr($font_controls_label); ?>">
+        <button type="button" class="reading-tool-button" data-font-scale="decrease" aria-label="<?php echo esc_attr($decrease_text_label); ?>">A-</button>
+        <button type="button" class="reading-tool-button" data-font-scale="reset" aria-label="<?php echo esc_attr($reset_text_label); ?>">A</button>
+        <button type="button" class="reading-tool-button" data-font-scale="increase" aria-label="<?php echo esc_attr($increase_text_label); ?>">A+</button>
     </div>
     <?php
 }
