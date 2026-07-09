@@ -421,7 +421,7 @@
   }
 
   function moveActivePlayerToShell() {
-    if (!activePlayerState || !activePlayerState.audio || activePlayerState.audio.paused) {
+    if (!activePlayerState || !activePlayerState.audio || !activePlayerState.audio.getAttribute("src")) {
       hidePersistentShell();
       return;
     }
@@ -714,7 +714,10 @@
         clearStickyPlayers();
       }
       if (persistentShell && persistentShell.contains(state.player)) {
-        hidePersistentShell();
+        persistentShell.hidden = false;
+        persistentShell.classList.add("is-visible");
+        state.player.classList.add("is-persistent");
+        document.body.classList.add("bw-audio-sticky-active");
       }
       persistResume(state, false);
     });
